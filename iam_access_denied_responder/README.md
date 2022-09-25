@@ -20,7 +20,7 @@ or running the command below to apply the Cloudformation template to create all 
 ```
 aws cloudformation deploy \
     --template-file AccessDeniedResponder.yaml \
-    --stack-name iam-acccess-denied-responder` \
+    --stack-name iam-access-denied-responder \
     --capabilities CAPABILITY_IAM \
     --parameter-overrides \
     SlackHookUrl=<your-slack-hook-url> \
@@ -28,6 +28,7 @@ aws cloudformation deploy \
     LambdaS3BucketName=<bucket-name-storing-source-code> \
     PublishLambdaS3KeyName=<zip-name-of-publish-lambda> \
     GenerateMessagesLambdaS3KeyName=<zip-name-of-generate-message-lambda> \
+    CloudtrailLogGroupName=<cloudtrail-log-group-name>
     --region <your-region-1>
 ```
 
