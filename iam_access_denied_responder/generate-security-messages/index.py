@@ -160,6 +160,29 @@ def publish_iam_user_history(event, context):
         Message=json.dumps({'TextMessage': history}),
     )
 
+def unauthorize_login_attempt(event, context):
+  client = boto3.client('sns')
+  event_source = 'signin.amazonaws.com'
+  lambdaFunctionArn = context.invoked_function_arn
+  awsAccountId = lambdaFunctionArn.split(':')[4]
+  if 'Records' in event:
+    record = event['Records'][0]
+    snsMessage = json.loads(record['Sns']['Message'])    
+  else:
+    snsMessage = event['detail']
+
+  message = 'Unusual console login was seen on event {0} occured in account {1}\n'.format(
+    event_source,
+    awsAccountId if awsAccountId else '<N/A>'
+  )
+  message += 'Please checkout the Cloudtrail dashboard to locate the issue.\n'
+
+  client.publish(
+    TopicArn=os.environ['TopicTarget'],
+    Message=json.dumps({'TextMessage': message}),
+  )
+  print('Publish SNS message completed')
+
 def getIPGeoDetails(sourceIPAddress):
   try:
     api_key = os.environ['APIKey']

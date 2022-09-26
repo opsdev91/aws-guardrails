@@ -356,6 +356,19 @@ Resources:
               - 'Arn'
       Protocol: 'lambda'
       TopicArn: !Ref 'AccessDeniedTopic'
+  
+  UnauthorizedLoginAttemptSubscription:
+    Type: 'AWS::SNS::Subscription'
+    DependsOn: 
+      - 'AccessDeniedTopic'
+      - 'UnauthorizedLoginAttemptLambda'
+    Properties:
+      Endpoint: 
+        Fn::GetAtt:
+              - 'UnauthorizedLoginAttemptLambda'
+              - 'Arn'
+      Protocol: 'lambda'
+      TopicArn: !Ref 'AccessDeniedTopic'
 
   PublishUserAccessDeniedLambdaPermission:
     Type: 'AWS::Lambda::Permission'
@@ -428,6 +441,34 @@ Resources:
     Properties:
       FunctionName: sec-ir-PublishUserTrailsHistory
       Handler: index.publish_user_history
+      Role: !GetAtt PublishSecurityMessageExecutionRole.Arn
+      Environment:
+        Variables:
+          TopicTarget: !Ref SecurityMessagesTopic
+          APIKey: !Ref APIKey
+      Code:
+        S3Bucket:
+          Ref: LambdaS3BucketName
+        S3Key:
+          Ref: GenerateMessagesLambdaS3KeyName
+      Runtime: python3.9
+      Timeout: '300'
+
+  UnauthorizedLoginAttemptLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      #EventSourceToken: String
+      FunctionName: !GetAtt UnauthorizedLoginAttemptLambda.Arn
+      Principal: 'sns.amazonaws.com'
+      #SourceAccount: !Ref 'AWS::AccountId'
+      SourceArn: !Ref AccessDeniedTopic
+  
+  UnauthorizedLoginAttemptLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      FunctionName: sec-ir-UnauthorizedLoginAttempt
+      Handler: index.unauthorize_login_attempt
       Role: !GetAtt PublishSecurityMessageExecutionRole.Arn
       Environment:
         Variables:
