@@ -75,19 +75,19 @@ Resources:
       DisplayName: sec-ir-SecurityMessages
       TopicName: SecurityMessages
   
-  SecurityMessageChimeSubscription:
-    Type: 'AWS::SNS::Subscription'
-    Condition: CreateChimePublisher
-    DependsOn: 
-      - 'SecurityMessagesTopic'
-      - 'PublishSecurityMessageToChimeLambda'
-    Properties:
-      Endpoint: 
-        Fn::GetAtt:
-              - 'PublishSecurityMessageToChimeLambda'
-              - 'Arn'
-      Protocol: 'lambda'
-      TopicArn: !Ref 'SecurityMessagesTopic'
+  # SecurityMessageChimeSubscription:
+  #   Type: 'AWS::SNS::Subscription'
+  #   Condition: CreateChimePublisher
+  #   DependsOn: 
+  #     - 'SecurityMessagesTopic'
+  #     - 'PublishSecurityMessageToChimeLambda'
+  #   Properties:
+  #     Endpoint: 
+  #       Fn::GetAtt:
+  #             - 'PublishSecurityMessageToChimeLambda'
+  #             - 'Arn'
+  #     Protocol: 'lambda'
+  #     TopicArn: !Ref 'SecurityMessagesTopic'
   
   SecurityMessageSlackSubscription:
     Type: 'AWS::SNS::Subscription'
@@ -133,34 +133,34 @@ Resources:
       Runtime: python3.9
       Timeout: '300'
 
-  PublishSecurityMessageToChimeLambdaPermission:
-    Type: 'AWS::Lambda::Permission'
-    Condition: CreateChimePublisher
-    Properties:
-      Action: 'lambda:InvokeFunction'
-      #EventSourceToken: String
-      FunctionName: !GetAtt PublishSecurityMessageToChimeLambda.Arn
-      Principal: 'sns.amazonaws.com'
-      #SourceAccount: !Ref 'AWS::AccountId'
-      SourceArn: !Ref SecurityMessagesTopic
+  # PublishSecurityMessageToChimeLambdaPermission:
+  #   Type: 'AWS::Lambda::Permission'
+  #   Condition: CreateChimePublisher
+  #   Properties:
+  #     Action: 'lambda:InvokeFunction'
+  #     #EventSourceToken: String
+  #     FunctionName: !GetAtt PublishSecurityMessageToChimeLambda.Arn
+  #     Principal: 'sns.amazonaws.com'
+  #     #SourceAccount: !Ref 'AWS::AccountId'
+  #     SourceArn: !Ref SecurityMessagesTopic
 
-  PublishSecurityMessageToChimeLambda:
-    Type: 'AWS::Lambda::Function'
-    Condition: CreateChimePublisher
-    Properties:
-      FunctionName: sec-ir-PublishSecuirtyMessageToChime
-      Handler: index.publish_to_chime_handler
-      Role: !GetAtt PublishSecurityMessageLambdaExecutionRole.Arn
-      Environment:
-        Variables:
-          ChimeHookUrl: !Ref ChimeHookUrl
-      Code:
-        S3Bucket:
-          Ref: LambdaS3BucketName
-        S3Key:
-          Ref: PublishLambdaS3KeyName
-      Runtime: python3.9
-      Timeout: '300'
+  # PublishSecurityMessageToChimeLambda:
+  #   Type: 'AWS::Lambda::Function'
+  #   Condition: CreateChimePublisher
+  #   Properties:
+  #     FunctionName: sec-ir-PublishSecuirtyMessageToChime
+  #     Handler: index.publish_to_chime_handler
+  #     Role: !GetAtt PublishSecurityMessageLambdaExecutionRole.Arn
+  #     Environment:
+  #       Variables:
+  #         ChimeHookUrl: !Ref ChimeHookUrl
+  #     Code:
+  #       S3Bucket:
+  #         Ref: LambdaS3BucketName
+  #       S3Key:
+  #         Ref: PublishLambdaS3KeyName
+  #     Runtime: python3.9
+  #     Timeout: '300'
       
 
   PublishSecurityMessageExecutionRole:
