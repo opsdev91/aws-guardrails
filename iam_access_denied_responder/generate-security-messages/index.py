@@ -23,6 +23,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def access_denied_handler(event, context):
+  print(event)
   if 'Records' in event:
     record = event['Records'][0]
     snsMessage = json.loads(record['Sns']['Message'])['detail']

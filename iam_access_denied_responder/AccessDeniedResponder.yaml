@@ -245,6 +245,22 @@ Resources:
           MetricNamespace: CloudtrailMetric
           MetricName: UnauthorizedActivityAttempt
 
+  UnauthorizedActivityAttemptAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: sec-ir-UnauthorizedActivityAttempt
+      AlarmDescription: Multiple unauthorized actions or logins attempted
+      Statistic: Sum
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      Threshold: 1
+      MetricName: UnauthorizedActivityAttempt
+      Namespace: CloudtrailMetric
+      Period: 60
+      AlarmActions:
+        - !Ref AccessDeniedTopic
+    DependsOn: 'AccessDeniedTopic'
+
   AWSConsoleLoginFail:
     Type: 'AWS::Events::Rule'
     Properties:
@@ -288,6 +304,12 @@ Resources:
         - Effect: Allow
           Principal:
             Service: "events.amazonaws.com"
+          Action: sns:Publish
+          Resource: !Ref 'AccessDeniedTopic'
+        - Sid: "cloudwatchAlarmPolicy"
+          Effect: Allow
+          Principal:
+            Service: "cloudwatch.amazonaws.com"
           Action: sns:Publish
           Resource: !Ref 'AccessDeniedTopic'
       Topics:
